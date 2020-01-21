@@ -23,13 +23,12 @@
 
           <!-- 注册 -->
           <van-tab style="padding:0 20px;" :title="'注册'">
-            <van-cell-group name="1">
+            <van-cell-group name="2">
               <van-field
                 v-model="zcphone"
                 required
                 label="手机号"
                 placeholder="请输入手机号"
-                :input="ifPhone"
                 :error-message="errormessage3"
               />
               <van-field
@@ -47,21 +46,16 @@
                 :error-message="errormessage4"
               />
               <van-field
-                v-model="yanzheng"
-                required
-                label="短信验证码"
-                placeholder="请输入短信验证码"
-                :error-message="errormessage2"
-              >
-                <van-button slot="button" @click="sendYZM" size="small" type="primary">
-                  <p class="sengyzm" v-if="!isSendYZ">发送验证码</p>
-                  <p class="senddjs" v-else style="line-height:0; display:flex;">
-                    <span>剩余</span>
-                    <van-count-down class="djs" style="color:#ffffff" :time="60000" format="ss" />
-                  </p>
-                </van-button>
-              </van-field>
+            v-model="yanzheng"
+            center
+            clearable
+            label="短信验证码"
+            placeholder="请输入短信验证码"
+          >
+            <van-button @click="sms" slot="button" size="small" type="primary">发送验证码</van-button>
+          </van-field>
             </van-cell-group>
+            <br>
             <van-button type="info" size="large" @click="register()">注册</van-button>
             <p style="display:flex;">
               <van-checkbox v-model="checked" @click="checked=!checked" shape="square"></van-checkbox>同意
@@ -71,16 +65,6 @@
           </van-tab>
 
         </van-tabs>
-
-
-         <van-field
-    v-model="phone"
-    required
-    label="手机号"
-    :input="isP"
-    placeholder="请输入手机号"
-    error-message="手机号格式错误"
-  />
 </div>
 </template>
 <script>
@@ -112,27 +96,49 @@ export default {
   },
   created()
   {
-   this.API.login().then((res)=>{
+   this.API.login('/top/album?offset=0&limit=30').then((res)=>{
      console.log(res);
-   })
+   });
+    // this.API.captcha('/captcha/sent?phone=13733811645')
+    //   .then(res => {
+    //     console.log(res); 
+    //   })
   },
 
   methods: {
-    isP(){
-      console.log(111);
-      
-    },
-    //判断手机是否注册
-    ifPhone(){
-      console.log(222);
-      this.API.zcphone('/cellphone/existence/check?phone='+this.zcphone)
-      .then(res =>{
-        console.log(res);
+    //发送验证码
+    sms(){
+      this.API.captcha(`/captcha/sent?phone=${this.zcphone}`)
+      .then(res => {
+        console.log(res); 
+        
       })
     },
+    //判断手机是否注册
+    // ifPhone(){
+    //   console.log(222);
+    //   this.API.zcphone('/cellphone/existence/check',{
+    //    phone:this.zcphone,
+    //    password:this.zcpassword,
+    //    nickname:this.nickName,
+    //    captcha:this.yanzheng
+    //   })
+    //   .then(res =>{
+    //     console.log(res);
+    //   })
+    // },
+    //刚注册初始化昵称
+    // showNickname(){
+    //   this.API.nickname(`/activate/init/profile?nickname=${this.zcnickName}`)
+    // },
     //注册
     register(){
-
+       this.API.reg(`/cellphone/existence/check?phone=${this.zcphone}&password=${this.zcpassword}&captcha=${this.yanzheng}&nickname=${this.zcnickName}`)
+      .then(res =>{
+        console.log(res);
+        console.log(this.zcphone,this.zcpassword,this.yanzheng,this.zcnickName);
+        
+      })
     },
     sendYZM(){
 
@@ -141,8 +147,6 @@ export default {
 };
 </script>
 <style scoped>
-.login{
-  background-image: url('../../img/back.jpg');
-}
+
 
 </style>
