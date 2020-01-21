@@ -8,17 +8,39 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    children:[
+      {
+        path: '/cloud',
+        name: 'cloud',
+        component: () => import('../views/cloud.vue')
+      },{
+        path: '/find',
+        name: 'find',
+        component: () => import('../views/find.vue')
+      },{
+        path: '/video',
+        name: 'video',
+        component: () => import('../views/video.vue')
+      }
+    ]
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/login/login.vue')
+  },{
+    path: '/seek',
+    name: 'seek',
+    component: () => import('../views/seek.vue')
   }
 ]
+
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
+  return originalPush.call(this, location).catch((err) => err);
+};// 解决vue-router更新后调用push方控制台报错的问题 ;
 
 const router = new VueRouter({
   routes
